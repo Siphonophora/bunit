@@ -109,6 +109,7 @@ namespace Bunit
         {
             if (_unhandledException is { })
             {
+                //TODO uncomment. THis needs to have a shallow mode that doesn't throw.
                 //ExceptionDispatchInfo.Capture(_unhandledException).Throw();
             }
         }

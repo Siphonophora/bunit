@@ -34,7 +34,7 @@ namespace Bunit
             var (id, instance) = Container.GetComponent<Shallow>();
 
             //Crashes here, because rendered is looking for its specified component type.
-            (ComponentId, Instance) = Container.GetComponent<TComponent>();
+            //(ComponentId, Instance) = Container.GetComponent<TComponent>();
             FirstRenderMarkup = Markup;
         }
 

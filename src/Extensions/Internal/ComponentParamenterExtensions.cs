@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Bunit.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.RenderTree;
@@ -91,7 +90,7 @@ namespace Bunit
                     var AddFrame = builder.GetType().GetMethod("Append", BindingFlags.Instance | BindingFlags.NonPublic);
                     // This will be used to track skipped frames
                     int skipTo = 0;
-                    builder.OpenComponent<Shallow>(0);
+                    //builder.OpenComponent<Shallow>(0);
                     // Check each frame in the RenderTree
                     foreach (var frame in fr.Array)
                     {
@@ -128,7 +127,7 @@ namespace Bunit
                             }
                         }
                     }
-                    builder.CloseComponent();
+                    //builder.CloseComponent();
                 };
 
                 //mjc make a builder

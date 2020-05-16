@@ -153,7 +153,11 @@ namespace Bunit
         }
 
         /// <inheritdoc/>
-        protected virtual void BuildRenderTree(RenderTreeBuilder builder) { }
+        protected virtual void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            var a = builder;
+        
+        }
 
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)

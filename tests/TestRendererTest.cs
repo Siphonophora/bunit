@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Bunit.BlazorE2E.BasicTestApp;
-using Bunit.Extensions;
-using Bunit.Mocking.JSInterop;
 using Bunit.SampleComponents;
-using Microsoft.AspNetCore.Components;
 using Shouldly;
 using Xunit;
 
@@ -16,7 +12,7 @@ namespace Bunit
         public void Test001()
         {
             var res = new ConcurrentRenderEventSubscriber(Renderer.RenderEvents);
-            var sut = RenderComponent<TwoChildren>();
+            var sut = RenderComponent<ChildrenHolder>();
 
             res.RenderCount.ShouldBe(1);
 

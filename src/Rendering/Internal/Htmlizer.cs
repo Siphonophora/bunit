@@ -1,26 +1,23 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.RenderTree;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Components.RenderTree;
 
 namespace Bunit
 {
     [SuppressMessage("Usage", "BL0006:Do not use RenderTree types", Justification = "<Pending>")]
     internal class Htmlizer
     {
+        public const string BLAZOR_ATTR_PREFIX = "blazor:";
+        public const string ELEMENT_REFERENCE_ATTR_NAME = BLAZOR_ATTR_PREFIX + "elementreference";
         private static readonly HtmlEncoder HtmlEncoder = HtmlEncoder.Default;
 
         private static readonly HashSet<string> SelfClosingElements = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"
         };
-
-        public const string BLAZOR_ATTR_PREFIX = "blazor:";
-        public const string ELEMENT_REFERENCE_ATTR_NAME = BLAZOR_ATTR_PREFIX + "elementreference";
 
         public static bool IsBlazorAttribute(string attributeName)
             => attributeName.StartsWith(BLAZOR_ATTR_PREFIX, StringComparison.Ordinal);
@@ -32,6 +29,7 @@ namespace Bunit
 
         public static string GetHtml(TestRenderer renderer, int componentId)
         {
+            // At this point, we have a full render tree?? mjc
             var frames = renderer.GetCurrentRenderTreeFrames(componentId);
             var context = new HtmlRenderingContext(renderer);
             var newPosition = RenderFrames(context, frames, 0, frames.Count);
@@ -66,21 +64,29 @@ namespace Bunit
             {
                 case RenderTreeFrameType.Element:
                     return RenderElement(context, frames, position);
+
                 case RenderTreeFrameType.Attribute:
                     throw new InvalidOperationException($"Attributes should only be encountered within {nameof(RenderElement)}");
                 case RenderTreeFrameType.Text:
                     context.Result.Add(HtmlEncoder.Encode(frame.TextContent));
                     return ++position;
+
                 case RenderTreeFrameType.Markup:
                     context.Result.Add(frame.MarkupContent);
                     return ++position;
+
                 case RenderTreeFrameType.Component:
-                    return RenderChildComponent(context, frames, position);
+                    context.Result.Add(frame.Component.GetType().ToString());
+                    return ++position;
+                // return RenderChildComponent(context, frames, position);
+
                 case RenderTreeFrameType.Region:
                     return RenderFrames(context, frames, position + 1, frame.RegionSubtreeLength - 1);
+
                 case RenderTreeFrameType.ElementReferenceCapture:
                 case RenderTreeFrameType.ComponentReferenceCapture:
                     return ++position;
+
                 default:
                     throw new InvalidOperationException($"Invalid element frame type '{frame.FrameType}'.");
             }
@@ -108,9 +114,10 @@ namespace Bunit
             result.Add(frame.ElementName);
             var afterAttributes = RenderAttributes(context, frames, position + 1, frame.ElementSubtreeLength - 1, out var capturedValueAttribute);
 
-            // When we see an <option> as a descendant of a <select>, and the option's "value" attribute matches the
-            // "value" attribute on the <select>, then we auto-add the "selected" attribute to that option. This is
-            // a way of converting Blazor's select binding feature to regular static HTML.
+            // When we see an <option> as a descendant of a <select>, and the option's "value"
+            // attribute matches the "value" attribute on the <select>, then we auto-add the
+            // "selected" attribute to that option. This is a way of converting Blazor's select
+            // binding feature to regular static HTML.
             if (context.ClosestSelectValueAsString != null
                 && string.Equals(frame.ElementName, "option", StringComparison.OrdinalIgnoreCase)
                 && string.Equals(capturedValueAttribute, context.ClosestSelectValueAsString, StringComparison.Ordinal))
@@ -133,8 +140,8 @@ namespace Bunit
 
                 if (isSelect)
                 {
-                    // There's no concept of nested <select> elements, so as soon as we're exiting one of them,
-                    // we can safely say there is no longer any value for this
+                    // There's no concept of nested <select> elements, so as soon as we're exiting
+                    // one of them, we can safely say there is no longer any value for this
                     context.ClosestSelectValueAsString = null;
                 }
 
@@ -208,11 +215,10 @@ namespace Bunit
 
                 if (frame.AttributeEventHandlerId > 0)
                 {
-                    // NOTE: this was changed from  
-                    //       result.Add($" {frame.AttributeName}=\"{frame.AttributeEventHandlerId}\"");
-                    //       to the following to make it more obvious
-                    //       that this is a generated/special blazor attribute
-                    //       used for tracking event handler id's
+                    // NOTE: this was changed from result.Add($"
+                    // {frame.AttributeName}=\"{frame.AttributeEventHandlerId}\""); to the following
+                    // to make it more obvious that this is a generated/special blazor attribute
+                    // used for tracking event handler id's
                     result.Add($" {BLAZOR_ATTR_PREFIX}{frame.AttributeName}=\"{frame.AttributeEventHandlerId}\"");
                     continue;
                 }
@@ -223,6 +229,7 @@ namespace Bunit
                         result.Add(" ");
                         result.Add(frame.AttributeName);
                         break;
+
                     case string value:
                         result.Add(" ");
                         result.Add(frame.AttributeName);
@@ -231,6 +238,7 @@ namespace Bunit
                         result.Add(HtmlEncoder.Encode(value));
                         result.Add("\"");
                         break;
+
                     default:
                         break;
                 }
@@ -241,12 +249,12 @@ namespace Bunit
 
         private class HtmlRenderingContext
         {
-            public TestRenderer Renderer { get; }
-
             public HtmlRenderingContext(TestRenderer renderer)
             {
                 Renderer = renderer;
             }
+
+            public TestRenderer Renderer { get; }
 
             public List<string> Result { get; } = new List<string>();
 

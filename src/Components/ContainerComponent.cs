@@ -101,17 +101,17 @@ namespace Bunit
         private (int Id, TComponent Component)? GetComponent<TComponent>(int componentId) where TComponent : IComponent
         {
             var ownFrames = _renderer.GetCurrentRenderTreeFrames(componentId);
-
+            
             for (int i = 0; i < ownFrames.Count; i++)
             {
                 ref var frame = ref ownFrames.Array[i];
                 if (frame.FrameType == RenderTreeFrameType.Component)
                 {
+                    var result = GetComponent<TComponent>(frame.ComponentId);
                     if (frame.Component is TComponent component)
                     {
                         return (frame.ComponentId, component);
                     }
-                    var result = GetComponent<TComponent>(frame.ComponentId);
                     if (result != null) return result;
                 }
             }

@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.Extensions.Logging;
+
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
+
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Bunit
@@ -20,21 +23,21 @@ namespace Bunit
         private Exception? _unhandledException;
 
         /// <inheritdoc/>
-        public override Dispatcher Dispatcher { get; } = Dispatcher.CreateDefault();
-
-        /// <summary>
-        /// Gets an <see cref="IObservable{RenderEvent}"/> which will provide subscribers with <see cref="RenderEvent"/>s from the
-        /// <see cref="TestRenderer"/> during its life time.
-        /// </summary>
-        public IObservable<RenderEvent> RenderEvents { get; }
-
-        /// <inheritdoc/>
         public TestRenderer(IServiceProvider serviceProvider, ILoggerFactory loggerFactory) : base(serviceProvider, loggerFactory)
         {
             _renderEventPublisher = new RenderEventPublisher();
             _logger = loggerFactory?.CreateLogger(GetType().FullName) ?? NullLogger.Instance;
             RenderEvents = _renderEventPublisher;
         }
+
+        /// <inheritdoc/>
+        public override Dispatcher Dispatcher { get; } = Dispatcher.CreateDefault();
+
+        /// <summary>
+        /// Gets an <see cref="IObservable{RenderEvent}"/> which will provide subscribers with <see
+        /// cref="RenderEvent"/> s from the <see cref="TestRenderer"/> during its life time.
+        /// </summary>
+        public IObservable<RenderEvent> RenderEvents { get; }
 
         /// <inheritdoc/>
         public new ArrayRange<RenderTreeFrame> GetCurrentRenderTreeFrames(int componentId)
@@ -69,6 +72,17 @@ namespace Bunit
             return task;
         }
 
+        /// <summary>
+        /// Dispatches an callback in the context of the renderer synchronously and asserts no
+        /// errors happened during dispatch
+        /// </summary>
+        /// <param name="callback"></param>
+        public void DispatchAndAssertNoSynchronousErrors(Action callback)
+        {
+            Dispatcher.InvokeAsync(callback).Wait();
+            AssertNoSynchronousErrors();
+        }
+
         /// <inheritdoc/>
         protected override void HandleException(Exception exception)
         {
@@ -84,17 +98,6 @@ namespace Bunit
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Dispatches an callback in the context of the renderer synchronously and 
-        /// asserts no errors happened during dispatch
-        /// </summary>
-        /// <param name="callback"></param>
-        public void DispatchAndAssertNoSynchronousErrors(Action callback)
-        {
-            Dispatcher.InvokeAsync(callback).Wait();
-            AssertNoSynchronousErrors();
-        }
-
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
@@ -106,7 +109,7 @@ namespace Bunit
         {
             if (_unhandledException is { })
             {
-                ExceptionDispatchInfo.Capture(_unhandledException).Throw();
+                //ExceptionDispatchInfo.Capture(_unhandledException).Throw();
             }
         }
     }

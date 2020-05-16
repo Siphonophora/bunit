@@ -1,6 +1,21 @@
 ﻿<p>
-    <ClickCounter/>
+    <ClickCounter />
 </p>
 <div>
-    <Simple1 Header="HELLO"/>
+    <Simple1 Header="HELLO1" />
+    <Simple1 Header="HELLO2" />
+    <Simple1 Header="HELLO3" />
 </div>
+
+@code{
+    [CascadingParameter] public int? t { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (t.HasValue == false)
+        {
+            throw new ArgumentNullException(nameof(t));
+        }
+        base.OnInitialized();
+    }
+}

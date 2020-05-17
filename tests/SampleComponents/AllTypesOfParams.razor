@@ -1,5 +1,14 @@
 ﻿@typeparam TItem
 @inject IJSRuntime jsRuntime
+
+<div>@RegularParam</div>
+<div>@UnnamedCascadingValue</div>
+<div>@NamedCascadingValue</div>
+<div>
+    @ChildContent
+</div>
+<div>@OtherContent</div>
+
 @code {
     [Parameter(CaptureUnmatchedValues = true)]
     public IReadOnlyDictionary<string, object> Attributes { get; set; } = default!;

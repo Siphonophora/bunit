@@ -88,13 +88,16 @@ namespace Bunit
                 return builder =>
                 {
                     var AddFrame = builder.GetType().GetMethod("Append", BindingFlags.Instance | BindingFlags.NonPublic);
+                    //var AddFrame = builder.GetType().GetMethod("Append", BindingFlags.Instance | BindingFlags.NonPublic);
                     // This will be used to track skipped frames
-                    int skipTo = 0;
+                    //var contFrame = RenderTreeFrame
                     //builder.OpenComponent<Shallow>(0);
+                    builder.OpenComponent(0, typeof(TComponent));
+                    int skipTo = 0;
                     // Check each frame in the RenderTree
                     foreach (var frame in fr.Array)
                     {
-                        Debug.WriteLine($"Got Frame: {frame.Sequence} : {frame.FrameType} : {skipTo}");
+                        Trace.WriteLine($"Got Frame: {frame.Sequence} : {frame.FrameType} : {skipTo}");
 
                         // GetFrames returns at least 16 frames, filled with FrameType None but the
                         // renderer doesn't like them, so skip them or get errors
@@ -107,13 +110,14 @@ namespace Bunit
                                 skipTo = frame.Sequence + frame.ComponentSubtreeLength;
 
                                 // debug - cos you wanna see it happen
-                                Debug.WriteLine($"Skipping Component with length: {frame.ComponentSubtreeLength}");
+                                Trace.WriteLine($"Skipping Component with length: {frame.ComponentSubtreeLength}");
 
                                 // The renderer doesn't like it if we just drop the frame, so for
                                 // now I am replacing it with comment text saying the name of the
                                 // component but you could do something different
                                 for (int i = 0; i < frame.ComponentSubtreeLength; i++)
                                 {
+                                    Trace.WriteLine("Added Commented Markup");
                                     builder.AddMarkupContent(frame.Sequence + i, $"<!-- {frame.ComponentType.Name}-{i} -->");
                                 }
                             }
@@ -122,12 +126,17 @@ namespace Bunit
                                 if (frame.Sequence >= skipTo)
                                 {
                                     // Put the rendered frames we want on the actual RenderTree
+                                    Trace.WriteLine("Added Frame");
                                     AddFrame.Invoke(builder, new object[] { frame });
+                                }
+                                else
+                                {
+                                    Trace.WriteLine("Skipped Frame");
                                 }
                             }
                         }
                     }
-                    //builder.CloseComponent();
+                    builder.CloseComponent();
                 };
 
                 //mjc make a builder

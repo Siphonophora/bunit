@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using Bunit.SampleComponents;
 using Shouldly;
@@ -12,7 +13,10 @@ namespace Bunit
         public void Test001()
         {
             var res = new ConcurrentRenderEventSubscriber(Renderer.RenderEvents);
-            var sut = RenderComponent<ChildrenHolder>();
+            //var sut = RenderComponent<ChildrenHolder>();
+            var sut = RenderComponent<ClickCounter>();
+
+            File.WriteAllText($@"c:\temp\click counter markup {DateTime.Now.ToString("yyyyMMdd HHmmss")}.txt", sut.Markup);
 
             res.RenderCount.ShouldBe(1);
 

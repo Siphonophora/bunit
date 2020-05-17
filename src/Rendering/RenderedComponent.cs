@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Bunit.Components;
 using Microsoft.AspNetCore.Components;
 
 namespace Bunit
@@ -31,10 +30,10 @@ namespace Bunit
         public RenderedComponent(ITestContext testContext, RenderFragment renderFragment)
             : base(testContext, renderFragment)
         {
-            var (id, instance) = Container.GetComponent<Shallow>();
+            //var (id, instance) = Container.GetComponent<Shallow>();
 
             //Crashes here, because rendered is looking for its specified component type.
-            //(ComponentId, Instance) = Container.GetComponent<TComponent>();
+            (ComponentId, Instance) = Container.GetComponent<TComponent>();
             FirstRenderMarkup = Markup;
         }
 

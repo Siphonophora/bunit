@@ -88,7 +88,8 @@ namespace Bunit
                     return ++position;
 
                 default:
-                    throw new InvalidOperationException($"Invalid element frame type '{frame.FrameType}'.");
+                    //throw new InvalidOperationException($"Invalid element frame type '{frame.FrameType}'.");
+                    return ++position;
             }
         }
 

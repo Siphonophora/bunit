@@ -1,8 +1,32 @@
-﻿<button @onclick="IncreaseCount">Click to count</button>
+﻿@using System.ComponentModel.DataAnnotations
+
+<button @onclick="IncreaseCount">Click to count</button>
 <p>@Count</p>
-<Simple1 Header="head" AttrValue="attr"></Simple1>
+<Simple1 Header="lkj"></Simple1>
+<div>@UnnamedCascadingValue</div>
+
+<EditForm Model="@this" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="name" @bind-Value="this.Name" />
+
+    <button type="submit">Submit</button>
+</EditForm>
 
 @code {
+    [CascadingParameter]
+    public int? UnnamedCascadingValue { get; set; }
+
     public int Count { get; private set; } = 0;
     void IncreaseCount() => Count++;
+
+    [Required]
+    [StringLength(10, ErrorMessage = "Name is too long.")]
+    public string Name { get; set; }
+
+    private void HandleValidSubmit()
+    {
+        Console.WriteLine("OnValidSubmit");
+    }
 }
